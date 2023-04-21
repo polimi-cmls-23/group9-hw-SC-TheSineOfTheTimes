@@ -1,4 +1,4 @@
-# **Bitwinds**
+# **BitWinds**
 ### **A subtractive synthesis powered wind instrument emulator**
 (Group 9 repository for the SC homework of CMLS, A.Y. 2022/2023)
 # Video presentation
