@@ -1,3 +1,9 @@
+//BitWinds
+//A subtractive synthesis powered wind instrument emulator
+//----------------------
+//Authors: Francesco Colotti, Gioele Fortugno, Matteo Gionfriddo, Marco Granaiola, Emanuele Greco
+//----------------------
+
 /* TODO:
 - (NORMAL) Handle better .free events
 - (NORMAL) Handle reverb stop button problem
@@ -674,6 +680,16 @@ var currTool = 0; //in the seqView GUI:
 //2: delete note
 var iconPencil, iconDur, iconDel; //GUI icons for tools
 var seqToolbar; //EPIC controls for the sequencer
+
+var currentOctave = 4; //for the sequencer
+//the octaves go from 1 to 7
+//(yes we're cutting A0, A#0, B0 and C8 out
+//If Moog can do it so can we)
+//(but seriously it wouldn't make much sense to play a wind instrument that low or high)
+var currentOctaveText;
+var iconOctUp, iconOctDown, iconPlaySEQ, iconStopSEQ;
+var octToolbar; //controls for octaves
+var seqPlayStopToolbar;
 
 var iconPlay, iconStop;
 var playStopToolbar;
@@ -1512,12 +1528,57 @@ knobCut1= EZKnob.new(vw, Rect(tempW+50, tempH+100, 90, 90), "CutOff").setColors(
 				seqToolbar.bounds =
 				Rect.new(vw.bounds.width/2 - 53, tempH+5,106, 30);
 				seqToolbar.visible_(true);
+
+				octToolbar = ToolBar(
+					MenuAction("").icon_(iconOctDown).action_({
+						if(currentOctave > 1, {
+							currentOctave = currentOctave -1;
+							currentOctaveText.string = "C"++currentOctave;
+						}
+						)
+					}),
+					MenuAction("").icon_(iconOctUp).action_({
+						if(currentOctave <7, {
+							currentOctave = currentOctave + 1;
+							currentOctaveText.string = "C"++currentOctave;
+						}
+						)
+					})
+				);
+				octToolbar.setParent(vw);
+				octToolbar.bounds = Rect.new(100, vw.bounds.height-45,106, 30);
+				octToolbar.visible_(true);
+
+			currentOctaveText = StaticText.new(seqView, Rect.new(25,seqView.bounds.height-45, 150,50 ));
+			currentOctaveText.string = "C"++currentOctave;
+			currentOctaveText.stringColor = Color.black;
+				currentOctaveText.visible_(true);
+
+			seqPlayStopToolbar = ToolBar(
+					MenuAction("").icon_(iconPlaySEQ).action_({
+						//TODO
+						var noteSequence;
+						noteSequence = notesToSeq.value;
+					}),
+					MenuAction("").icon_(iconStopSEQ).action_({
+						//TODO
+					})
+				);
+				seqPlayStopToolbar.setParent(vw);
+				seqPlayStopToolbar.bounds = Rect.new(vw.bounds.width - 170, vw.bounds.height-45,106, 30);
+				seqPlayStopToolbar.visible_(true);
+
 		});
+		currentOctaveText.string = "C"++currentOctave;
 	},3,{
+		//credits
 		seqView.visible_(false);
 		fxView.visible_(false);
 		ivCredits.visible_(true);
-	//credits
+		if(hasDrawn[3]==false,
+			{
+				hasDrawn[3]=true;
+		});
 	}
 	);
 
@@ -1582,6 +1643,9 @@ var hidePart = { arg part=0; //0 = synth, 1 = effects, 2 = seq, 3 = credits
 		hideEffects.value(fx_params[currFX].at(\type));
 	},2,{
 		seqToolbar.visible_(false);
+		octToolbar.visible_(false);
+		currentOctaveText.visible_(false);
+		seqPlayStopToolbar.visible_(false);
 	},3,{});
 };//end hidePart()
 
@@ -1627,9 +1691,15 @@ var showPart = { arg part;
 		//so far, if we call visible on seqToolbar
 		//and it hasn't been created yet we get a error
 		if(hasDrawn[2]==true,
-			{seqToolbar.visible_(true);});
+			{seqToolbar.visible_(true);
+			octToolbar.visible_(true);
+			currentOctaveText.visible_(true);
+			seqPlayStopToolbar.visible_(true);
+		});
+
 	},3,{
 		~freqScope.visible_(false);
+
 	});
 };//end showpart
 
@@ -1722,6 +1792,13 @@ offIcon = Image.new(thisProcess.nowExecutingPath.dirname+/+"images/icon_off.png"
 iconPencil= Image.new(thisProcess.nowExecutingPath.dirname+/+"images/icon_pencil.png");
 iconDur = Image.new(thisProcess.nowExecutingPath.dirname+/+"images/icon_dur.png");
 iconDel = Image.new(thisProcess.nowExecutingPath.dirname+/+"images/icon_del.png");
+
+//octaves icons
+iconOctUp = Image.new(thisProcess.nowExecutingPath.dirname+/+"images/icon_oct_up.png");
+iconOctDown = Image.new(thisProcess.nowExecutingPath.dirname+/+"images/icon_oct_down.png");
+//SEQ play stop icons
+iconPlaySEQ = Image.new(thisProcess.nowExecutingPath.dirname+/+"images/icon_play_SEQ.png");
+iconStopSEQ = Image.new(thisProcess.nowExecutingPath.dirname+/+"images/icon_stop_SEQ.png");
 
 //load effects logos
 logoBitcrush = Image.new(thisProcess.nowExecutingPath.dirname+/+"images/logo_bitcrush.png");
@@ -2472,7 +2549,7 @@ seqView.mouseDownAction = {
 	var note;
 	var loc;
 	var duration = 1;
-
+	var invalidLoc = false;
 	var tempLoc, tempNote,tempDur;
 	note = floor(y / noteHeight);
 	if(note < 0, {note = 0;});
@@ -2483,15 +2560,17 @@ seqView.mouseDownAction = {
 	loc = floor((x - tempX / minDurLen));
 	if(loc<0, {
 		//play the note
+		invalidLoc = true;
 	});
 	if(loc>31,{loc = 32;});
 
 	//If loc>=0 the position is valid for writing/editing/deleting notes
 	//find out if there is already a note there
-	if (hasNote.value(note,loc),
+	if(invalidLoc==false, {
+	if ( hasNote.value(note,loc),
 		{//we'll leave this to mouseMoveAction
 			//...unless our current tool is the delete tool (2)
-			if( (currTool==2) || (buttonNumber==1),
+				if( (currTool==2) || (buttonNumber==1), //this thing doesn't work anyway...
 				{
 					seqNotes.at(note).removeAt(loc);
 				},{
@@ -2501,7 +2580,7 @@ seqView.mouseDownAction = {
 		},
 		{ //no note
 			//drawing tool
-			if(currTool==0,
+			if( (currTool==0) && (buttonNumber==0),
 				{
 					//check if there are overlaps with existing notes
 					//if there are:
@@ -2553,8 +2632,8 @@ seqView.mouseDownAction = {
 						}
 					);
 			});
-		}
-		);//END if (note has value)
+		});//END if (note has value)
+});//END if (loc is valid)
 	seqView.refresh;
 };
 seqView.mouseMoveAction = {
@@ -2683,13 +2762,17 @@ hasNote = {
 
 
 //Take the notes dictionary and create a note sequence ready to be played
+//Notes, when present, are in the format [NOTE, LOCATION, DURATION]
+//e.g. a C at step 4 (starting from 0) with duration 1 step will be
+//saved as [0,4,1]
 notesToSeq = {
 	arg notes;
 	var notesSequence;
 	var tempArray, noteArray;
 	var isEmptyTempArray = true;
 	var tempDur;
-	notesSequence = Array.new(maxSize:32);
+	//notesSequence = Array.new(maxSize:32);
+	notesSequence = Array.fill(32, {arg i; i});
 	//take the note dictionary, seqNotes
 	//we have numNotes entries. Each
 	//entry contains an Order, an ordered dictionary
