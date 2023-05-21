@@ -1651,7 +1651,7 @@ var hidePart = { arg part=0; //0 = synth, 1 = effects, 2 = seq, 3 = credits
 
 var showPart = { arg part;
 	switch(part, 0, {
-		~freqScope.visible_(false);
+		~freqScope.visible_(true);
 		//show texts
 		[osc1text,osc2text].do({arg item, i; item.visible_(true)});
 		//show ADSR
@@ -1686,7 +1686,7 @@ var showPart = { arg part;
 		[textFXOnOff,textFXChoice,textFXSwitch].do({arg item, i; item.visible_(true)});
 		showEffects.value(fx_params[currFX].at(\type));
 	},2,{
-		~freqScope.visible_(false);
+		~freqScope.visible_(true);
 		//for some reason, despite having done this
 		//so far, if we call visible on seqToolbar
 		//and it hasn't been created yet we get a error
@@ -1698,7 +1698,7 @@ var showPart = { arg part;
 		});
 
 	},3,{
-		~freqScope.visible_(false);
+		~freqScope.visible_(true);
 
 	});
 };//end showpart
@@ -2063,9 +2063,9 @@ This is a UserView we use to make effects more user friendly
 tempW = (vw.bounds.width/3 + 50);
 tempH = (vw.bounds.height/5 + 50);
 
-~freqScope = FreqScopeView(vw, Rect(tempW,tempH,vw.bounds.width/2, 450));
+~freqScope = FreqScopeView(vw, Rect(640,10,430, 70));
 ~freqScope.active_(true);
-~freqScope.visible_(false);
+~freqScope.dbRange(200);
 vw.onClose_({ ~freqScope.kill; s.quit; });
 
 fxView = UserView(vw,Rect(tempW,tempH,vw.bounds.width/2, 450));
