@@ -12,9 +12,6 @@
 // 1 -> Brown, 2 -> Pink, 3 -> White
 ~noise_type = 1;
 
-~output_bus_osc=53;
-~output_bus_noise=54;
-
 // 0 -> None, 1 -> Pan, 2 -> Brass
 ~timbre_osc_type = 0;
 ~timbre_noise_type = 0;
@@ -87,82 +84,12 @@
 
 ~input_bus_final_mixing=64;
 
-c = Group.new;
-u = Group.after(c);
+u = Group.new;
 g = Group.after(u);
 o = Group.after(g);
 
 
 // WAVE SYNTH DEFINITIONS
-//Sawtooth wave definition
-SynthDef(\saw, {
-	|
-	out = 0, freq = 440
-	|
-
-	var sig;
-	// Output
-	sig =  Saw.ar(freq);
-	Out.ar(out,sig);
-}).add;
-//Triangle wave definition
-SynthDef(\triangle, {
-	|
-	out = 0, freq = 440
-	|
-
-	var sig;
-	sig = LFTri.ar(freq);
-	// Output
-	Out.ar(out,sig);
-
-}).add;
-//Square wave definition
-SynthDef(\square, {
-	|
-	out = 0, freq = 440
-	|
-
-	var sig;
-    sig = Pulse.ar(freq,0.5);
-	// Output
-	Out.ar(out,sig);
-}).add;
-//White Noise definition
-SynthDef(\wnoise, {
-	|
-	out = 0
-	|
-
-	var sig;
-
-	sig = WhiteNoise.ar();
-	// Output
-	Out.ar(out,sig);
-}).add;
-//Brown Noise definition
-SynthDef(\bnoise, {
-	|
-	out = 0
-	|
-
-	var sig;
-
-    sig = BrownNoise.ar();
-	// Output
-	Out.ar(out,sig);
-}).add;
-//Pink Noise definition
-SynthDef(\pnoise, {
-	|
-	out = 0
-	|
-
-	var sig;
-    sig = PinkNoise.ar();
-	// Output
-	Out.ar(out,sig);
-}).add;
 
 // FILTERS SYNTH DEFINITIONS
 //Low Pass Filter Osc 1 Definition
@@ -300,31 +227,46 @@ SynthDef(\dummy, {
 //Dummy with Envelope SynthDef
 SynthDef(\dummyEnv, {
 	|
-	out ,inBus,att = 0.5
-	sus = 0.5, rel = 0.5
+	out,att = 0.5
+	sus = 0.5, rel = 0.5,
+	amp = 1, midinote = 60,
+	ampSaw = 1, ampTri = 0,
+	ampPul = 0, ampWhi = 0,
+	ampBro = 0, ampPin = 0
 	|
 
-	var env,sig;
+	var env,sig,saw,tri,pul,wno,bno,pno;
 
 	env = EnvGen.kr(Env([0,1,1,0],[att,sus,rel],[1,0,-1]),doneAction:2);
-    sig = In.ar(inBus);
+	saw = Saw.ar(midinote.midicps)*ampSaw;
+	tri = LFTri.ar(midinote.midicps,0)*ampTri;
+	pul = Pulse.ar(midinote.midicps,0.5)*ampPul;
 
-	Out.ar(out,sig*env*0.05);
+	wno = WhiteNoise.ar()*ampWhi;
+	bno = BrownNoise.ar()*ampBro;
+	pno = PinkNoise.ar()*ampPin;
+
+	sig = saw + tri + pul + wno + bno + pno;
+
+	Out.ar(out,sig*env*0.05*amp);
 }).add;
 
 // TIMBRE SYNTH DEFINITIONS
 //Pan Osc SynthDef
 SynthDef(\panOsc, {
 	|
-	out ,inBus,att = 0.2
-	sus = 1, rel = 0.2
-	freq = 440, rq = 7,
+	out ,inBus,att = 0.2,
+	sus = 1, rel = 0.2,
+	rq = 7,
 	vibrato_freq =8,
 	vibrato_depth = 0.17,
-	ntt_ratio=0.6 // noise to tonal ratio
+	ntt_ratio=0.6, // noise to tonal ratio
+	amp = 1, midinote = 60,
+	ampSaw = 1, ampTri = 0,
+	ampPul = 0
 	|
 
-	var env,sig,vibrato;
+	var env,sig,vibrato,saw,tri,pul;
 
 	// Envelope
 	env = EnvGen.kr(Env([0,1,1,0],[att,sus,rel],[1,0,-1]),doneAction:2);
@@ -333,8 +275,11 @@ SynthDef(\panOsc, {
 	vibrato = SinOsc.kr(vibrato_freq,mul:vibrato_depth,add:-1*vibrato_depth/2);
 
 	// Processing
-    sig = In.ar(inBus);
-	sig = RLPF.ar(sig,freq,rq);
+	saw = Saw.ar(midinote.midicps)*ampSaw;
+	tri = LFTri.ar(midinote.midicps,0)*ampTri;
+	pul = Pulse.ar(midinote.midicps,0.5)*ampPul;
+	sig = saw + tri + pul;
+	sig = RLPF.ar(sig,midinote.midicps,rq);
 	sig = sig*env*(1+vibrato);
 
 	// Output
@@ -344,18 +289,21 @@ SynthDef(\panOsc, {
 //Brass Osc SynthDef
 SynthDef(\brassOsc, {
 	|
-	out ,inBus,att = 0.2,
+	out ,att = 0.2,
 	dec = 0.2 ,sus = 1,
-	rel = 0.1,freq = 440
+	rel = 0.1,midinote = 60,
+	amp = 1,ampSaw = 1,
+	ampTri = 0,ampPul = 0
 	|
 
 	var env,sig,tone,lfo,lfo_freq = 8, lfo_depth = 0.7, lfo_env;
-	var lpf_env, lpf_freq = freq + (10000-freq)*0.18;
+	var lpf_env, lpf_freq = midinote.midicps + (10000-midinote.midicps)*0.18;
 	var lpf_ratio = lpf_freq/10000;
 	var growl,growl_env,growl_depth = 0.7;
 	var vibrato_env, vibrato_depth = 0.18;
 	var vibrato,ntt_ratio=0.15; //noise to tone ratio
 	var gate = SinOsc.kr(1);
+	var saw,tri,pul;
 	gate=1;
 
 	//Envelope
@@ -390,7 +338,10 @@ SynthDef(\brassOsc, {
 	vibrato = LFTri.kr(5,mul:vibrato_depth,add:-1*vibrato_depth/2);
 
 	// Processing
-	tone = In.ar(inBus);
+	saw = Saw.ar(midinote.midicps)*ampSaw;
+	tri = LFTri.ar(midinote.midicps,0)*ampTri;
+	pul = Pulse.ar(midinote.midicps,0.5)*ampPul;
+	tone = saw + tri + pul;
 	tone = tone*env*(1+lfo);
 	sig = RLPF.ar(tone,freq:(10000*lpf_env+1)*(1+growl),rq:1.3);
 	//sig = sig * (1+vibrato);
@@ -404,14 +355,17 @@ SynthDef(\panNoise, {
 	|
 	out ,inBus,att =0.1
 	sus = 1, rel = 0.24,
-	freq = 440
+	amp = 1, midinote = 60,
+    ampWhi = 0,ampBro = 0,
+	ampPin = 0
 	|
 
 	var env,sig,harmonics,chiff_env;
-	var hpf_freq=freq + (20000-freq)*0.4;
+	var hpf_freq=midinote.midicps + (20000-midinote.midicps)*0.4;
 	var input_noise,noise, chiff;
 	var ftc_ratio = 0.9; // fromant noise to chiff ratio
 	var ntt_ratio=0.6; //noise to tonal ratio
+	var wno,bno,pno;
 
 	 //3 octaves and 3 fifths, to emulate air blowing sound
 	harmonics = [1,1.5,2,2*1.5,4,4*1.5,8,8*1.5];
@@ -426,9 +380,12 @@ SynthDef(\panNoise, {
 	chiff_env = EnvGen.kr(chiff_env);
 
 	// Processing
-    input_noise = In.ar(inBus);
+	wno = WhiteNoise.ar()*ampWhi;
+	bno = BrownNoise.ar()*ampBro;
+	pno = PinkNoise.ar()*ampPin;
+	input_noise = wno + bno + pno;
     input_noise = HPF.ar(input_noise,hpf_freq);
-	noise = BBandPass.ar(input_noise,harmonics*freq,bw:0.1);
+	noise = BBandPass.ar(input_noise,harmonics*midinote.midicps,bw:0.1);
 	noise = noise*env;
 
 	// Chiff
@@ -445,14 +402,16 @@ SynthDef(\panNoise, {
 //Brass Noise SynthDef
 SynthDef(\brassNoise, {
 	|
-	out ,inBus,att = 0.2
+	out ,att = 0.2
 	sus = 1, rel = 0.1,
-	freq = 440
+	midinote = 60, ampWhi = 1,
+	ampBro = 0, ampPin = 0
 	|
 
 	var env,sig,harmonics;
-	var hpf_freq = freq+(10000-freq)*0.28;
+	var hpf_freq = midinote.midicps+(10000-midinote.midicps)*0.28;
 	var ntt_ratio = 0.15; // noise to tone ratio
+	var wno,bno,pno;
 
 	 // To emulate air blowing sound
 	harmonics = [1,1.5,2,2*1.5,4,4*1.5];
@@ -460,9 +419,12 @@ SynthDef(\brassNoise, {
 	env = EnvGen.kr(Env([0,1,0.4,0.4,0],[att,0.2,sus,rel],[1,0,-1]),doneAction:2);
 
 	// Processing
-    sig = In.ar(inBus);
+	wno = WhiteNoise.ar()*ampWhi;
+	bno = BrownNoise.ar()*ampBro;
+	pno = PinkNoise.ar()*ampPin;
+    sig =  wno + bno + pno;
 	sig = HPF.ar(sig,hpf_freq);
-	sig = BBandPass.ar(sig,harmonics*freq,bw:0.2,mul:6);
+	sig = BBandPass.ar(sig,harmonics*midinote.midicps,bw:0.2,mul:6);
 	sig = sig * env;
 	sig = Mix.arFill(1,[sig]);
 
