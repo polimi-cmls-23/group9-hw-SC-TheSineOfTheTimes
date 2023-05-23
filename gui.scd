@@ -4,14 +4,14 @@
 //Authors: Francesco Colotti, Gioele Fortugno, Matteo Gionfriddo, Marco Granaiola, Emanuele Greco
 //----------------------
 // GUI file
-
+// - Pul vs Tri variables
 
 //TODO: choice between noise and osc
 //NEW GUI
 (
 //StartOfNewGUI
 //main window
-
+var seqIsPlaying = false;
 var win;
 var vw, iv,iv2, ivFX, ivCredits; //vw = userview, iv = image view for main logo, iv2 = image view for background, ivFX = image view for fx logos, ivCredits = self explanatory
 var tempVar; //for operations
@@ -1001,7 +1001,15 @@ knobCut1= EZKnob.new(vw, Rect(tempW+50, tempH+100, 90, 90), "CutOff").setColors(
 
 			seqPlayStopToolbar = ToolBar(
 					MenuAction("").icon_(iconPlaySEQ).action_({
+						if(seqIsPlaying == false,{
+
 						var noteSequence;
+						var ampS;
+						var ampPu;
+						var ampT;
+						var ampW;
+						var ampB;
+						var ampPi;
 
 						var allDur = Array.fill(12, {arg i; i=[
 							0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,
@@ -1016,31 +1024,33 @@ knobCut1= EZKnob.new(vw, Rect(tempW+50, tempH+100, 90, 90), "CutOff").setColors(
 							0,0,0,0,0,0,0,0,
 							0,0,0,0,0,0,0,0
 						];});
+						seqIsPlaying = true;
 						~seqPbind = Array.fill(12,{});
 						~seqPbind2 = Array.fill(12,{});
 						noteSequence = notesToSeq.value;
 
 
 						for(0,31,{arg i;
-								if(noteSequence[i][0] != nil,{
+								if(noteSequence[i] != nil,{
+								if(noteSequence[i] != -1,{
 								var note_seq =  noteSequence[i][0][0];
 								var loca_seq =  noteSequence[i][0][1];
 								var dura_seq = noteSequence[i][0][2];
-								if (note_seq == 0, {allAmp[note_seq][loca_seq] = dura_seq;});
-								if (note_seq == 1, {allAmp[note_seq][loca_seq] = dura_seq;});
-								if (note_seq == 2, {allAmp[note_seq][loca_seq] = dura_seq;});
-								if (note_seq == 3, {allAmp[note_seq][loca_seq] = dura_seq;});
-								if (note_seq == 4, {allAmp[note_seq][loca_seq] = dura_seq;});
-								if (note_seq == 5, {allAmp[note_seq][loca_seq] = dura_seq;});
-								if (note_seq == 6, {allAmp[note_seq][loca_seq] = dura_seq;});
-								if (note_seq == 7, {allAmp[note_seq][loca_seq] = dura_seq;});
-								if (note_seq == 8, {allAmp[note_seq][loca_seq] = dura_seq;});
-								if (note_seq == 9, {allAmp[note_seq][loca_seq] = dura_seq;});
-								if (note_seq == 10, {allAmp[note_seq][loca_seq] = dura_seq;});
-								if (note_seq == 11, {allAmp[note_seq][loca_seq] = dura_seq;});
+									if (note_seq == 0, {allAmp[note_seq][loca_seq] = dura_seq;});
+									if (note_seq == 1, {allAmp[note_seq][loca_seq] = dura_seq;});
+									if (note_seq == 2, {allAmp[note_seq][loca_seq] = dura_seq;});
+									if (note_seq == 3, {allAmp[note_seq][loca_seq] = dura_seq;});
+									if (note_seq == 4, {allAmp[note_seq][loca_seq] = dura_seq;});
+									if (note_seq == 5, {allAmp[note_seq][loca_seq] = dura_seq;});
+									if (note_seq == 6, {allAmp[note_seq][loca_seq] = dura_seq;});
+									if (note_seq == 7, {allAmp[note_seq][loca_seq] = dura_seq;});
+									if (note_seq == 8, {allAmp[note_seq][loca_seq] = dura_seq;});
+									if (note_seq == 9, {allAmp[note_seq][loca_seq] = dura_seq;});
+									if (note_seq == 10, {allAmp[note_seq][loca_seq] = dura_seq;});
+									if (note_seq == 11, {allAmp[note_seq][loca_seq] = dura_seq;});
+								});
 								});
 							});
-
 
 						for(0,11,{arg i;
 							var wholeDur = allDur[i];
@@ -1062,54 +1072,152 @@ knobCut1= EZKnob.new(vw, Rect(tempW+50, tempH+100, 90, 90), "CutOff").setColors(
 							allDur[i] = wholeDur;
 							allAmp[i] = wholeAmp;
 						});
-						for(0,11,{arg i;
-							allDur[i].postln;
-							allAmp[i].postln;
+
+
+
+						if(~osc_type == 1,{ampS = 1; ampPu = 0; ampT = 0;});
+						if(~osc_type == 2,{ampS = 0; ampPu = 1; ampT = 0;});
+						if(~osc_type == 3,{ampS = 0; ampPu = 0; ampT = 1;});
+
+						if(~noise_type == 1,{ampW = 0; ampB = 1; ampPi = 0;});
+						if(~noise_type == 2,{ampW = 0; ampB = 0; ampPi = 1;});
+						if(~noise_type == 3,{ampW = 1; ampB = 0; ampPi = 0;});
+
+						if(~timbre_osc_type == 0,{
+							for(0,11,{arg i;
+								~seqPbind[i] = Pbind(\instrument, \dummyEnv,
+									\group ,u,
+									\att, knobA1.value,
+									\sus, Pseq(allDur[i],inf),
+									\rel, knobR1.value,
+									\out, ~output_bus_timbre_osc,
+									\dur, Pseq(allDur[i],inf),
+									\amp, Pseq(allAmp[i],inf),
+									\midinote, Pseq([12+i+(12*currentOctave)], inf),
+									\ampSaw, ampS,
+									\ampPul, ampPu,
+									\ampTri, ampT,
+									\ampWhi,0,
+									\ampBro,0,
+									\ampPin,0
+								).play;
+							});
 						});
 
-						for(0,11,{arg i;
-							~seqPbind[i] = Pbind(\instrument, \dummyEnv,
-							\group ,u,
-							\att, knobA1.value,
-							\sus, Pseq(allDur[i],inf),
-							\rel, knobR1.value,
-							\out, ~output_bus_timbre_osc,
-							\dur, Pseq(allDur[i],inf),
-							\amp, Pseq(allAmp[i],inf),
-							\midinote, Pseq([12+i+(12*currentOctave)], inf),
-							\ampSaw, 1,
-							\ampBro, 0,
-							\ampPin, 0,
-							\ampWhi,0,
-							\ampBro,0,
-							\ampPin,0
-						     ).play;
+						if(~timbre_osc_type == 1,{
+							for(0,11,{arg i;
+								~seqPbind[i] = Pbind(\instrument, \panOsc,
+									\group ,u,
+									\att, knobA1.value,
+									\sus, Pseq(allDur[i],inf),
+									\rel, knobR1.value,
+									\out, ~output_bus_timbre_osc,
+									\dur, Pseq(allDur[i],inf),
+									\amp, Pseq(allAmp[i],inf),
+									\midinote, Pseq([12+i+(12*currentOctave)], inf),
+									\ampSaw, ampS,
+									\ampPul, ampPu,
+									\ampTri, ampT,
+									\ampWhi,0,
+									\ampBro,0,
+									\ampPin,0
+								).play;
+							});
 						});
 
-						for(0,11,{arg i;
-							~seqPbind2[i] = Pbind(\instrument, \dummyEnv,
-							\group ,u,
-							\att, knobA1.value,
-							\sus, Pseq(allDur[i],inf),
-							\rel, knobR1.value,
-							\out, ~output_bus_timbre_noise,
-							\dur, Pseq(allDur[i],inf),
-							\amp, Pseq(allAmp[i],inf),
-							\ampSaw, 0,
-							\ampBro, 0,
-							\ampPin, 0,
-							\ampWhi,1,
-							\ampBro,0,
-							\ampPin,0
-						     ).play;
+						if(~timbre_osc_type == 2,{
+							for(0,11,{arg i;
+								~seqPbind[i] = Pbind(\instrument, \brassOsc,
+									\group ,u,
+									\att, knobA1.value,
+									\sus, Pseq(allDur[i],inf),
+									\rel, knobR1.value,
+									\out, ~output_bus_timbre_osc,
+									\dur, Pseq(allDur[i],inf),
+									\amp, Pseq(allAmp[i],inf),
+									\midinote, Pseq([12+i+(12*currentOctave)], inf),
+									\ampSaw, ampS,
+									\ampPul, ampPu,
+									\ampTri, ampT,
+									\ampWhi,0,
+									\ampBro,0,
+									\ampPin,0
+								).play;
+							});
 						});
 
+						if(~timbre_noise_type == 0,{
+							for(0,11,{arg i;
+								~seqPbind2[i] = Pbind(\instrument, \dummyEnv,
+									\group ,u,
+									\att ,knobA2.value,
+									\sus, Pseq(allDur[i],inf),
+									\rel, knobR2.value,
+									\out, ~output_bus_timbre_noise,
+									\dur, Pseq(allDur[i],inf),
+									\amp, Pseq(allAmp[i],inf),
+									\ampSaw, 0,
+									\ampPul, 0,
+									\ampTri, 0,
+									\ampWhi,ampW,
+									\ampBro,ampB,
+									\ampPin,ampPi
+								).play;
+							});
+						});
+
+						if(~timbre_noise_type == 1,{
+							for(0,11,{arg i;
+								~seqPbind2[i] = Pbind(\instrument, \panNoise,
+									\group ,u,
+									\att, knobA2.value,
+									\sus, Pseq(allDur[i],inf),
+									\rel, knobR2.value,
+									\out, ~output_bus_timbre_noise,
+									\dur, Pseq(allDur[i],inf),
+									\amp, Pseq(allAmp[i],inf),
+									\ampSaw, 0,
+									\ampPul, 0,
+									\ampTri, 0,
+									\ampWhi,ampW,
+									\ampBro,ampB,
+									\ampPin,ampPi
+								).play;
+							});
+						});
+
+						if(~timbre_noise_type == 2,{
+							for(0,11,{arg i;
+								~seqPbind2[i] = Pbind(\instrument, \brassNoise,
+									\group ,u,
+									\att, knobA2.value,
+									\sus, Pseq(allDur[i],inf),
+									\rel, knobR2.value,
+									\out, ~output_bus_timbre_noise,
+									\dur, Pseq(allDur[i],inf),
+									\amp, Pseq(allAmp[i],inf),
+									\ampSaw, 0,
+									\ampPul, 0,
+									\ampTri, 0,
+									\ampWhi,ampW,
+									\ampBro,ampB,
+									\ampPin,ampPi
+								).play;
+							});
+						});
+
+						});
 					}),
 					MenuAction("").icon_(iconStopSEQ).action_({
-						for(0,11,{arg i;
+
+						if(seqIsPlaying == true,{
+							for(0,11,{arg i;
 							~seqPbind[i].stop;
 							~seqPbind2[i].stop;
 						});
+							seqIsPlaying = false;
+						});
+
 
 					})
 				);
@@ -2365,6 +2473,7 @@ notesToSeq = {
 				//we have at least one event for that note
 				notesSequence.put(i, tempArray);
 		});
+		isEmptyTempArray = true;
 	});//END FOR
 	//now we should have an array containing, for
 	//each position, the events associated to that position
@@ -2429,34 +2538,34 @@ playStopToolbar.bounds = Rect.new(vw.bounds.width/2 -35, 15, 75, 45);
 	});
 
 	if (~osc_type == 2, {
-		if(~timbre_osc_type == 0,{(instrument: \dummyEnv,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:1,\ampPul:0,\ampWhi:0,\ampBro:0,\ampPin:0,\group:u).play;});
-		if(~timbre_osc_type == 1,{(instrument: \panOsc,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:1,\ampPul:0,\group:u).play;});
-		if(~timbre_osc_type == 2,{(instrument: \brassOsc,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:1,\ampPul:0,\group:u).play;});
+		if(~timbre_osc_type == 0,{(instrument: \dummyEnv,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:0,\ampPul:1,\ampWhi:0,\ampBro:0,\ampPin:0,\group:u).play;});
+		if(~timbre_osc_type == 1,{(instrument: \panOsc,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:0,\ampPul:1,\group:u).play;});
+		if(~timbre_osc_type == 2,{(instrument: \brassOsc,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:0,\ampPul:1,\group:u).play;});
 	});
 
 	if (~osc_type == 3, {
-		if(~timbre_osc_type == 0,{(instrument: \dummyEnv,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:0,\ampPul:1,\ampWhi:0,\ampBro:0,\ampPin:0,\group:u).play;});
-		if(~timbre_osc_type == 1,{(instrument: \panOsc,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:0,\ampPul:1,\group:u).play;});
-	 if(~timbre_osc_type == 2,{(instrument: \brassOsc,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:0,\ampPul:1,\group:u).play;});
+		if(~timbre_osc_type == 0,{(instrument: \dummyEnv,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:1,\ampPul:0,\ampWhi:0,\ampBro:0,\ampPin:0,\group:u).play;});
+		if(~timbre_osc_type == 1,{(instrument: \panOsc,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:1,\ampPul:0,\group:u).play;});
+	 if(~timbre_osc_type == 2,{(instrument: \brassOsc,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:1,\ampPul:0,\group:u).play;});
 	});
 
 	// Noise side
 	if (~noise_type == 1,{
-		if(~timbre_noise_type == 0,{(instrument: \dummyEnv,att: knobA2.value,sus: knobS2.value,rel: knobR2.value,out:~output_bus_timbre_noise,ampSaw:0,ampTri:0,\ampPul:0,\ampWhi:1,\ampBro:0,\ampPin:0,\group:u).play;});
-		if(~timbre_noise_type == 1,{(instrument: \panNoise,att: knobA2.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_noise,\ampWhi:1,\ampBro:0,\ampPin:0,\group:u).play;});
-		if(~timbre_noise_type == 2,{(instrument: \brassNoise,att: knobA2.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_noise,\ampWhi:1,\ampBro:0,\ampPin:0,\group:u).play;});
+		if(~timbre_noise_type == 0,{(instrument: \dummyEnv,att: knobA2.value,sus: knobS2.value,rel: knobR2.value,out:~output_bus_timbre_noise,ampSaw:0,ampTri:0,\ampPul:0,\ampWhi:0,\ampBro:1,\ampPin:0,\group:u).play;});
+		if(~timbre_noise_type == 1,{(instrument: \panNoise,att: knobA2.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_noise,\ampWhi:0,\ampBro:1,\ampPin:0,\group:u).play;});
+		if(~timbre_noise_type == 2,{(instrument: \brassNoise,att: knobA2.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_noise,\ampWhi:0,\ampBro:1,\ampPin:0,\group:u).play;});
 	});
 
 	if (~noise_type == 2,{
-		if(~timbre_noise_type == 0,{(instrument: \dummyEnv,att: knobA2.value,sus: knobS2.value,rel: knobR2.value,out:~output_bus_timbre_noise,ampSaw:0,ampTri:0,\ampPul:0,\ampWhi:0,\ampBro:1,\ampPin:0,\group:u).play;});
-		if(~timbre_noise_type == 1,{(instrument: \panNoise,att: knobA2.value,sus: knobS2.value,rel: knobR2.value,out:~output_bus_timbre_noise,\ampWhi:0,\ampBro:1,\ampPin:0,\group:u).play;});
-		if(~timbre_noise_type == 2,{(instrument: \brassNoise,att: knobA2.value,sus: knobS2.value,rel: knobR2.value,out:~output_bus_timbre_noise,\ampWhi:0,\ampBro:1,\ampPin:0,\group:u).play;});
-	});
-
-	if (~noise_type == 3,{
 		if(~timbre_noise_type == 0,{(instrument: \dummyEnv,att: knobA2.value,sus: knobS2.value,rel: knobR2.value,out:~output_bus_timbre_noise,ampSaw:0,ampTri:0,\ampPul:0,\ampWhi:0,\ampBro:0,\ampPin:1,\group:u).play;});
 		if(~timbre_noise_type == 1,{(instrument: \panNoise,att: knobA2.value,sus: knobS2.value,rel: knobR2.value,out:~output_bus_timbre_noise,\ampWhi:0,\ampBro:0,\ampPin:1,\group:u).play;});
 		if(~timbre_noise_type == 2,{(instrument: \brassNoise,att: knobA2.value,sus: knobS2.value,rel: knobR2.value,out:~output_bus_timbre_noise,\ampWhi:0,\ampBro:0,\ampPin:1,\group:u).play;});
+	});
+
+	if (~noise_type == 3,{
+		if(~timbre_noise_type == 0,{(instrument: \dummyEnv,att: knobA2.value,sus: knobS2.value,rel: knobR2.value,out:~output_bus_timbre_noise,ampSaw:0,ampTri:0,\ampPul:0,\ampWhi:1,\ampBro:0,\ampPin:0,\group:u).play;});
+		if(~timbre_noise_type == 1,{(instrument: \panNoise,att: knobA2.value,sus: knobS2.value,rel: knobR2.value,out:~output_bus_timbre_noise,\ampWhi:1,\ampBro:0,\ampPin:0,\group:u).play;});
+		if(~timbre_noise_type == 2,{(instrument: \brassNoise,att: knobA2.value,sus: knobS2.value,rel: knobR2.value,out:~output_bus_timbre_noise,\ampWhi:1,\ampBro:0,\ampPin:0,\group:u).play;});
 	});
 };
 
@@ -2531,6 +2640,10 @@ playStopToolbar.bounds = Rect.new(vw.bounds.width/2 -35, 15, 75, 45);
 
 	p = Synth.after(l,\finalMix,[\inBus,~input_bus_final_mixing],o);
 };
+~filters_osc_creation.value;
+~filters_noise_creation.value;
+~effects_creation.value;
+~final_mixing_creation.value;
 )
 // Miscellaneous
 /*
