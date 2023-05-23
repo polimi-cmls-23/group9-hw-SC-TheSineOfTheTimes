@@ -4,7 +4,6 @@
 //Authors: Francesco Colotti, Gioele Fortugno, Matteo Gionfriddo, Marco Granaiola, Emanuele Greco
 //----------------------
 // GUI file
-// - initialization of all filters/effects
 // - Pul vs Tri variables
 
 //TODO: choice between noise and osc
@@ -2641,6 +2640,10 @@ playStopToolbar.bounds = Rect.new(vw.bounds.width/2 -35, 15, 75, 45);
 
 	p = Synth.after(l,\finalMix,[\inBus,~input_bus_final_mixing],o);
 };
+~filters_osc_creation.value;
+~filters_noise_creation.value;
+~effects_creation.value;
+~final_mixing_creation.value;
 )
 // Miscellaneous
 /*
