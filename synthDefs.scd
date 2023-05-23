@@ -274,7 +274,7 @@ SynthDef(\panOsc, {
 	// Envelope
 	env = EnvGen.kr(Env([0,1,1,0],[att,sus,rel],[1,0,-1]),doneAction:2);
 
-	//LFO per vibrato
+	//Vibrato generator
 	vibrato = SinOsc.kr(vibrato_freq,mul:vibrato_depth,add:-1*vibrato_depth/2);
 
 	// Processing
@@ -282,6 +282,8 @@ SynthDef(\panOsc, {
 	tri = LFTri.ar(freq,0)*ampTri;
 	pul = Pulse.ar(freq,0.5)*ampPul;
 	sig = saw + tri + pul;
+
+
 	sig = RLPF.ar(sig,freq,rq);
 	sig = sig*(1+vibrato);
 
@@ -298,14 +300,18 @@ SynthDef(\brassOsc, {
 	amp = 1,ampSaw = 1,
 	ampTri = 0,ampPul = 0
 	|
+
 	// Midi -> freq
 	var freq = midinote.midicps;
 	var env,sig,tone,lfo,lfo_freq = 8, lfo_depth = 0.7, lfo_env;
 	var lpf_env, lpf_freq = freq + (10000-freq)*0.18;
 	var lpf_ratio = lpf_freq/10000;
+
 	var growl,growl_env,growl_depth = 0.7;
-	var vibrato_env, vibrato_depth = 0.18;
-	var vibrato,ntt_ratio=0.15; //noise to tone ratio
+
+	var vibrato_env,vibrato, vibrato_depth = 0.18;
+
+	var ntt_ratio=0.15; //noise to tone ratio
 	var gate = SinOsc.kr(1);
 	var saw,tri,pul;
 	gate=1;
@@ -329,6 +335,7 @@ SynthDef(\brassOsc, {
 	lpf_env = EnvGen.kr(lpf_env, gate);
 
 	// Growl generator
+	// Used to make the instability period of the sound found in the attack phase
 	growl_env = Env.new(
 		levels: [1, 0], //AD contour
 		times: [0.6]);
@@ -336,6 +343,7 @@ SynthDef(\brassOsc, {
 	growl = LFTri.kr(80, mul:growl_depth,)*growl_env;
 
 	// Vibrato generator
+	// Not used in this version
 	vibrato_env = Env.new(
 		levels: [0.0, 0.0, 1], //AD contour
 		times: [att+dec, sus]);
@@ -361,14 +369,14 @@ SynthDef(\panNoise, {
 	out ,inBus,att =0.1
 	sus = 1, rel = 0.24,
 	amp = 1, midinote = 60,
-    ampWhi = 0,ampBro = 0,
+    ampWhi = 0,ampBro = 0
 	ampPin = 0
 	|
 
 	var env,sig,harmonics,chiff_env;
 	var hpf_freq=midinote.midicps + (20000-midinote.midicps)*0.4;
 	var input_noise,noise, chiff;
-	var ftc_ratio = 0.9; // fromant noise to chiff ratio
+	var ftc_ratio = 0.9; // formant noise to chiff ratio
 	var ntt_ratio=0.6; //noise to tonal ratio
 	var wno,bno,pno;
 
@@ -390,14 +398,18 @@ SynthDef(\panNoise, {
 	pno = PinkNoise.ar()*ampPin;
 	input_noise = wno + bno + pno;
     input_noise = HPF.ar(input_noise,hpf_freq);
+
+	//noise through formant filter
+	//to give it a breathy sound
 	noise = BBandPass.ar(input_noise,harmonics*midinote.midicps,bw:0.1);
 	noise = noise*env;
 
 	// Chiff
+	// Attack of the pan flute sound
 	chiff = LPF.ar(input_noise,5000*chiff_env+1,mul:0.3);
 	chiff = chiff*chiff_env;
 
-	// Mix
+	// Mix the chiff component with the rest of the noise
 	sig = Mix.arFill(1,[chiff*(1-ftc_ratio) + 6*noise*ftc_ratio]);
 
 	// Output
@@ -420,6 +432,7 @@ SynthDef(\brassNoise, {
 
 	 // To emulate air blowing sound
 	harmonics = [1,1.5,2,2*1.5,4,4*1.5];
+
 	//  Envelope
 	env = EnvGen.kr(Env([0,1,0.4,0.4,0],[att,0.2,sus,rel],[1,0,-1]),doneAction:2);
 
@@ -427,9 +440,14 @@ SynthDef(\brassNoise, {
 	wno = WhiteNoise.ar()*ampWhi;
 	bno = BrownNoise.ar()*ampBro;
 	pno = PinkNoise.ar()*ampPin;
-    sig =  wno + bno + pno;
+    sig = wno + bno + pno;
+
 	sig = HPF.ar(sig,hpf_freq);
+
+	//noise through formant filter
+	//to give it a breathy sound
 	sig = BBandPass.ar(sig,harmonics*midinote.midicps,bw:0.2,mul:6);
+
 	sig = sig * env;
 	sig = Mix.arFill(1,[sig]);
 
