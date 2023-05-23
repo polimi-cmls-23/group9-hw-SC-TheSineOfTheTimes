@@ -413,7 +413,7 @@ SynthDef(\panNoise, {
 	sig = Mix.arFill(1,[chiff*(1-ftc_ratio) + 6*noise*ftc_ratio]);
 
 	// Output
-	Out.ar(out,sig*ntt_ratio);
+	Out.ar(out,sig*ntt_ratio*amp);
 }).add;
 
 //Brass Noise SynthDef
@@ -448,11 +448,10 @@ SynthDef(\brassNoise, {
 	//to give it a breathy sound
 	sig = BBandPass.ar(sig,harmonics*midinote.midicps,bw:0.2,mul:6);
 
-	sig = sig * env;
 	sig = Mix.arFill(1,[sig]);
 
 	//Output
-	Out.ar(out,sig*ntt_ratio*0.3);
+	Out.ar(out,sig*ntt_ratio*0.3*env*amp);
 }).add;
 
 //Dummy Double SynthDef (Used for debugging)
