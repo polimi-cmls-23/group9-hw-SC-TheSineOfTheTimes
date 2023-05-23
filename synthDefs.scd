@@ -421,7 +421,7 @@ SynthDef(\brassNoise, {
 	|
 	out ,att = 0.2
 	sus = 1, rel = 0.1,
-	midinote = 60, ampWhi = 1,
+	midinote = 60, ampWhi = 1, amp = 1,
 	ampBro = 0, ampPin = 0
 	|
 
