@@ -1079,9 +1079,9 @@ knobCut1= EZKnob.new(vw, Rect(tempW+50, tempH+100, 90, 90), "CutOff").setColors(
 						if(~osc_type == 2,{ampS = 0; ampPu = 1; ampT = 0;});
 						if(~osc_type == 3,{ampS = 0; ampPu = 0; ampT = 1;});
 
-						if(~noise_type == 1,{ampW = 1; ampB = 0; ampPi = 0;});
-						if(~noise_type == 2,{ampW = 0; ampB = 1; ampPi = 0;});
-						if(~noise_type == 3,{ampW = 0; ampB = 0; ampPi = 1;});
+						if(~noise_type == 1,{ampW = 0; ampB = 1; ampPi = 0;});
+						if(~noise_type == 2,{ampW = 0; ampB = 0; ampPi = 1;});
+						if(~noise_type == 3,{ampW = 1; ampB = 0; ampPi = 0;});
 
 						if(~timbre_osc_type == 0,{
 							for(0,11,{arg i;
@@ -2538,34 +2538,34 @@ playStopToolbar.bounds = Rect.new(vw.bounds.width/2 -35, 15, 75, 45);
 	});
 
 	if (~osc_type == 2, {
-		if(~timbre_osc_type == 0,{(instrument: \dummyEnv,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:1,\ampPul:0,\ampWhi:0,\ampBro:0,\ampPin:0,\group:u).play;});
-		if(~timbre_osc_type == 1,{(instrument: \panOsc,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:1,\ampPul:0,\group:u).play;});
-		if(~timbre_osc_type == 2,{(instrument: \brassOsc,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:1,\ampPul:0,\group:u).play;});
+		if(~timbre_osc_type == 0,{(instrument: \dummyEnv,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:0,\ampPul:1,\ampWhi:0,\ampBro:0,\ampPin:0,\group:u).play;});
+		if(~timbre_osc_type == 1,{(instrument: \panOsc,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:0,\ampPul:1,\group:u).play;});
+		if(~timbre_osc_type == 2,{(instrument: \brassOsc,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:0,\ampPul:1,\group:u).play;});
 	});
 
 	if (~osc_type == 3, {
-		if(~timbre_osc_type == 0,{(instrument: \dummyEnv,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:0,\ampPul:1,\ampWhi:0,\ampBro:0,\ampPin:0,\group:u).play;});
-		if(~timbre_osc_type == 1,{(instrument: \panOsc,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:0,\ampPul:1,\group:u).play;});
-	 if(~timbre_osc_type == 2,{(instrument: \brassOsc,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:0,\ampPul:1,\group:u).play;});
+		if(~timbre_osc_type == 0,{(instrument: \dummyEnv,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:1,\ampPul:0,\ampWhi:0,\ampBro:0,\ampPin:0,\group:u).play;});
+		if(~timbre_osc_type == 1,{(instrument: \panOsc,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:1,\ampPul:0,\group:u).play;});
+	 if(~timbre_osc_type == 2,{(instrument: \brassOsc,att: knobA1.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_osc,ampSaw:0,ampTri:1,\ampPul:0,\group:u).play;});
 	});
 
 	// Noise side
 	if (~noise_type == 1,{
-		if(~timbre_noise_type == 0,{(instrument: \dummyEnv,att: knobA2.value,sus: knobS2.value,rel: knobR2.value,out:~output_bus_timbre_noise,ampSaw:0,ampTri:0,\ampPul:0,\ampWhi:1,\ampBro:0,\ampPin:0,\group:u).play;});
-		if(~timbre_noise_type == 1,{(instrument: \panNoise,att: knobA2.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_noise,\ampWhi:1,\ampBro:0,\ampPin:0,\group:u).play;});
-		if(~timbre_noise_type == 2,{(instrument: \brassNoise,att: knobA2.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_noise,\ampWhi:1,\ampBro:0,\ampPin:0,\group:u).play;});
+		if(~timbre_noise_type == 0,{(instrument: \dummyEnv,att: knobA2.value,sus: knobS2.value,rel: knobR2.value,out:~output_bus_timbre_noise,ampSaw:0,ampTri:0,\ampPul:0,\ampWhi:0,\ampBro:1,\ampPin:0,\group:u).play;});
+		if(~timbre_noise_type == 1,{(instrument: \panNoise,att: knobA2.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_noise,\ampWhi:0,\ampBro:1,\ampPin:0,\group:u).play;});
+		if(~timbre_noise_type == 2,{(instrument: \brassNoise,att: knobA2.value,sus: knobS1.value,rel: knobR1.value,out:~output_bus_timbre_noise,\ampWhi:0,\ampBro:1,\ampPin:0,\group:u).play;});
 	});
 
 	if (~noise_type == 2,{
-		if(~timbre_noise_type == 0,{(instrument: \dummyEnv,att: knobA2.value,sus: knobS2.value,rel: knobR2.value,out:~output_bus_timbre_noise,ampSaw:0,ampTri:0,\ampPul:0,\ampWhi:0,\ampBro:1,\ampPin:0,\group:u).play;});
-		if(~timbre_noise_type == 1,{(instrument: \panNoise,att: knobA2.value,sus: knobS2.value,rel: knobR2.value,out:~output_bus_timbre_noise,\ampWhi:0,\ampBro:1,\ampPin:0,\group:u).play;});
-		if(~timbre_noise_type == 2,{(instrument: \brassNoise,att: knobA2.value,sus: knobS2.value,rel: knobR2.value,out:~output_bus_timbre_noise,\ampWhi:0,\ampBro:1,\ampPin:0,\group:u).play;});
-	});
-
-	if (~noise_type == 3,{
 		if(~timbre_noise_type == 0,{(instrument: \dummyEnv,att: knobA2.value,sus: knobS2.value,rel: knobR2.value,out:~output_bus_timbre_noise,ampSaw:0,ampTri:0,\ampPul:0,\ampWhi:0,\ampBro:0,\ampPin:1,\group:u).play;});
 		if(~timbre_noise_type == 1,{(instrument: \panNoise,att: knobA2.value,sus: knobS2.value,rel: knobR2.value,out:~output_bus_timbre_noise,\ampWhi:0,\ampBro:0,\ampPin:1,\group:u).play;});
 		if(~timbre_noise_type == 2,{(instrument: \brassNoise,att: knobA2.value,sus: knobS2.value,rel: knobR2.value,out:~output_bus_timbre_noise,\ampWhi:0,\ampBro:0,\ampPin:1,\group:u).play;});
+	});
+
+	if (~noise_type == 3,{
+		if(~timbre_noise_type == 0,{(instrument: \dummyEnv,att: knobA2.value,sus: knobS2.value,rel: knobR2.value,out:~output_bus_timbre_noise,ampSaw:0,ampTri:0,\ampPul:0,\ampWhi:1,\ampBro:0,\ampPin:0,\group:u).play;});
+		if(~timbre_noise_type == 1,{(instrument: \panNoise,att: knobA2.value,sus: knobS2.value,rel: knobR2.value,out:~output_bus_timbre_noise,\ampWhi:1,\ampBro:0,\ampPin:0,\group:u).play;});
+		if(~timbre_noise_type == 2,{(instrument: \brassNoise,att: knobA2.value,sus: knobS2.value,rel: knobR2.value,out:~output_bus_timbre_noise,\ampWhi:1,\ampBro:0,\ampPin:0,\group:u).play;});
 	});
 };
 
