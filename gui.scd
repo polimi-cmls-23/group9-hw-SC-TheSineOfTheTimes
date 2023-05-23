@@ -62,6 +62,8 @@ var fx_params = [fxPa1,fxPa2,fxPa3,fxPa4,fxPa5,fxPa6,fxPa7,fxPa8,fxPa9,fxPa10];
 //each entry is a dictionary storing parameters for the effect
 var initFxParamDictionaries; //this will be a function
 var fxText1; //ABCDE
+var bitCrusherText1;
+var bitCrusherText2; //used to show "Bit Depth" and "Sample Rate" texts on axes
 var knobCompATK,knobCompREL,knobCompTHR, knobCompRAT, knobCompGAIN;
 //knobs for compressor controls. We'll retrieve the values of these for
 //each effect slot from the dictionaries
@@ -929,6 +931,22 @@ knobCut1= EZKnob.new(vw, Rect(tempW+50, tempH+100, 90, 90), "CutOff").setColors(
 				fxView.refresh;});
 			*/
 			hideEffects.value("Reverb");
+
+
+			//remember the fx tab always starts with the bitcrusher as its
+			//default effect. Create the texts and display them
+			//x axis text
+			bitCrusherText1 = StaticText.new(fxView, Rect.new((fxView.bounds.width/2)-75,fxView.bounds.height-45, 150,50 ));
+			bitCrusherText1.align_(\center);
+			bitCrusherText1.string = "Sample Rate";
+			bitCrusherText1.stringColor = Color.white;
+			//make this one vertical (y axis)
+			bitCrusherText2 = StaticText.new(fxView, Rect.new(15,75, 100,250 ));
+			bitCrusherText2.string = "B \ni \nt \n \nD \ne \np \nt \nh";
+			bitCrusherText2.stringColor = Color.white;
+			//this should already be visible, but just in case
+			bitCrusherText1.visible_(true);
+			bitCrusherText2.visible_(true);
 		});
 	},2,{
 	//sequencer
@@ -1124,6 +1142,7 @@ var fxOnOffButtonPressed = {
 var fxSwitchButtonPressed = {
 	arg buttonID;
 	//disable all buttons
+
 	for(0,numEffects-1,{arg i;
 		fx_switch_buttons[i].icon_(offIcon);
 	});
@@ -1237,7 +1256,9 @@ var showPart = { arg part;
 var hideEffects = {arg prevFX;
 switch(prevFX,
 			"BitCrusher",{
-			//do nothing, the bitcrusher is purely graphical
+			//hide the axes labels
+				bitCrusherText1.visible_(false);
+			    bitCrusherText2.visible_(false);
 			},
 			"Comp",{
 			[knobCompATK,knobCompREL,knobCompTHR, knobCompRAT,knobCompGAIN].do({arg item,i;
@@ -1261,7 +1282,9 @@ var showEffects  = {arg newFX;
 //knobCompATK,knobCompREL,knobCompTHR, knobCompRAT, knobCompGAIN
 	switch(newFX,
 			"BitCrusher",{
-			//do nothing, the bitcrusher is purely graphical
+			//Show the axes labels
+			    bitCrusherText1.visible_(true);
+			    bitCrusherText2.visible_(true);
 			},
 			"Comp",{
 			[knobCompATK,knobCompREL,knobCompTHR, knobCompRAT,knobCompGAIN].do({arg item,i;
