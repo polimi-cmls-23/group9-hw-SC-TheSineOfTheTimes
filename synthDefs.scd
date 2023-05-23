@@ -354,7 +354,6 @@ SynthDef(\brassOsc, {
 	// Output
 	Out.ar(out,sig*amp*(1-ntt_ratio)*0.3);
 }).add;
-
 //Pan Noise SynthDef
 SynthDef(\panNoise, {
 	|
@@ -401,16 +400,16 @@ SynthDef(\panNoise, {
 	sig = Mix.arFill(1,[chiff*(1-ftc_ratio) + 6*noise*ftc_ratio]);
 
 	// Output
-	Out.ar(out,sig*ntt_ratio);
+	Out.ar(out,sig*ntt_ratio*amp);
 }).add;
-
 //Brass Noise SynthDef
 SynthDef(\brassNoise, {
 	|
 	out ,att = 0.2
 	sus = 1, rel = 0.1,
 	midinote = 60, ampWhi = 1,
-	ampBro = 0, ampPin = 0
+	ampBro = 0, ampPin = 0,
+	amp = 1
 	|
 
 	var env,sig,harmonics;
@@ -430,11 +429,10 @@ SynthDef(\brassNoise, {
     sig =  wno + bno + pno;
 	sig = HPF.ar(sig,hpf_freq);
 	sig = BBandPass.ar(sig,harmonics*midinote.midicps,bw:0.2,mul:6);
-	sig = sig * env;
 	sig = Mix.arFill(1,[sig]);
 
 	//Output
-	Out.ar(out,sig*ntt_ratio*0.3);
+	Out.ar(out,sig*ntt_ratio*0.3*env*amp);
 }).add;
 
 //Dummy Double SynthDef (Used for debugging)
