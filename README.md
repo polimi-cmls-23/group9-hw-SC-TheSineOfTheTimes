@@ -20,4 +20,5 @@ More detailed informations can be found in the report we included in the **_Repo
 * (VERY RARE) The GUI (and the synth) randomly crash during execution, bringing the entire interpreter down with them. We have not been able to find a solution to this crash, also due to the objective difficulty in reproducing it
 * Open and close repeatedly the application sometimes could let the server don't booting correctly. This problem can be overcomed executing the SC function "kill all servers" and wait some seconds until re-run again the code.
 * The stop button doesn't stop the reverb (this could also be seen as its intended behaviour).
+* In some limit cases there could be problem when_.free_ function is called. 
 
