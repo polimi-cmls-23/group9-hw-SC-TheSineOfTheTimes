@@ -255,10 +255,10 @@ SynthDef(\dummyEnv, {
 //Pan Osc SynthDef
 SynthDef(\panOsc, {
 	|
-	out ,inBus,att = 0.2,
+	out ,att = 0.2,
 	sus = 1, rel = 0.2,
 	rq = 7,
-	vibrato_freq =8,
+	vibrato_freq = 8,
 	vibrato_depth = 0.17,
 	ntt_ratio=0.6, // noise to tonal ratio
 	amp = 1, midinote = 60,
@@ -266,7 +266,10 @@ SynthDef(\panOsc, {
 	ampPul = 0
 	|
 
-	var env,sig,vibrato,saw,tri,pul;
+	var env,sig,vibrato,saw,tri,pul,freq;
+
+	// Midi -> Freq
+	freq = midinote.midicps;
 
 	// Envelope
 	env = EnvGen.kr(Env([0,1,1,0],[att,sus,rel],[1,0,-1]),doneAction:2);
@@ -275,15 +278,15 @@ SynthDef(\panOsc, {
 	vibrato = SinOsc.kr(vibrato_freq,mul:vibrato_depth,add:-1*vibrato_depth/2);
 
 	// Processing
-	saw = Saw.ar(midinote.midicps)*ampSaw;
-	tri = LFTri.ar(midinote.midicps,0)*ampTri;
-	pul = Pulse.ar(midinote.midicps,0.5)*ampPul;
+	saw = Saw.ar(freq)*ampSaw;
+	tri = LFTri.ar(freq,0)*ampTri;
+	pul = Pulse.ar(freq,0.5)*ampPul;
 	sig = saw + tri + pul;
-	sig = RLPF.ar(sig,midinote.midicps,rq);
-	sig = sig*env*(1+vibrato);
+	sig = RLPF.ar(sig,freq,rq);
+	sig = sig*(1+vibrato);
 
 	// Output
-	Out.ar(out,sig*(1-ntt_ratio));
+	Out.ar(out,sig*env*amp*(1-ntt_ratio));
 }).add;
 
 //Brass Osc SynthDef
@@ -295,9 +298,10 @@ SynthDef(\brassOsc, {
 	amp = 1,ampSaw = 1,
 	ampTri = 0,ampPul = 0
 	|
-
+	// Midi -> freq
+	var freq = midinote.midicps;
 	var env,sig,tone,lfo,lfo_freq = 8, lfo_depth = 0.7, lfo_env;
-	var lpf_env, lpf_freq = midinote.midicps + (10000-midinote.midicps)*0.18;
+	var lpf_env, lpf_freq = freq + (10000-freq)*0.18;
 	var lpf_ratio = lpf_freq/10000;
 	var growl,growl_env,growl_depth = 0.7;
 	var vibrato_env, vibrato_depth = 0.18;
@@ -305,6 +309,7 @@ SynthDef(\brassOsc, {
 	var gate = SinOsc.kr(1);
 	var saw,tri,pul;
 	gate=1;
+
 
 	//Envelope
 	env = EnvGen.kr(Env([0,1,0.8,0.8,0],[att,dec,sus,rel],[1,0,-1]),doneAction:2);
@@ -338,16 +343,16 @@ SynthDef(\brassOsc, {
 	vibrato = LFTri.kr(5,mul:vibrato_depth,add:-1*vibrato_depth/2);
 
 	// Processing
-	saw = Saw.ar(midinote.midicps)*ampSaw;
-	tri = LFTri.ar(midinote.midicps,0)*ampTri;
-	pul = Pulse.ar(midinote.midicps,0.5)*ampPul;
+	saw = Saw.ar(freq)*ampSaw;
+	tri = LFTri.ar(freq,0)*ampTri;
+	pul = Pulse.ar(freq,0.5)*ampPul;
 	tone = saw + tri + pul;
 	tone = tone*env*(1+lfo);
 	sig = RLPF.ar(tone,freq:(10000*lpf_env+1)*(1+growl),rq:1.3);
 	//sig = sig * (1+vibrato);
 
 	// Output
-	Out.ar(out,sig*(1-ntt_ratio)*0.3);
+	Out.ar(out,sig*amp*(1-ntt_ratio)*0.3);
 }).add;
 
 //Pan Noise SynthDef

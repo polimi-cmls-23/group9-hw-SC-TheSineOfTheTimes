@@ -984,46 +984,42 @@ knobCut1= EZKnob.new(vw, Rect(tempW+50, tempH+100, 90, 90), "CutOff").setColors(
 			seqPlayStopToolbar = ToolBar(
 					MenuAction("").icon_(iconPlaySEQ).action_({
 						var noteSequence;
-						var durRef = 0.25;
-						var durVal = [
-							durRef,durRef,durRef,durRef,durRef,durRef,durRef,durRef,
-							durRef,durRef,durRef,durRef,durRef,durRef,durRef,durRef,
-							durRef,durRef,durRef,durRef,durRef,durRef,durRef,durRef,
-							durRef,durRef,durRef,durRef,durRef,durRef,durRef,durRef
-						];
 
-						var ampVal = [
+						var allDur = Array.fill(12, {arg i; i=[
+							0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,
+							0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,
+							0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,
+							0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25
+						];});
+
+						var allAmp = Array.fill(12, {arg i; i=[
 							0,0,0,0,0,0,0,0,
 							0,0,0,0,0,0,0,0,
 							0,0,0,0,0,0,0,0,
 							0,0,0,0,0,0,0,0
-						];
-
-						var allDur = Array.fill(12, {arg i; i=durVal});
-						var allAmp = Array.fill(12, {arg i; i=ampVal});
+						];});
 						~seqPbind = Array.fill(12,{});
+						~seqPbind2 = Array.fill(12,{});
 						noteSequence = notesToSeq.value;
 
 
 						for(0,31,{arg i;
 								if(noteSequence[i][0] != nil,{
-									var note_seq =  noteSequence[i][0][0];
-									var loca_seq =  noteSequence[i][0][1];
-									var dura_seq = noteSequence[i][0][2];
-								    switch(note_seq,
-									0, {allAmp[note_seq][loca_seq] = dura_seq;},
-									1, {allAmp[note_seq][loca_seq] = dura_seq;},
-									2, {allAmp[note_seq][loca_seq] = dura_seq;},
-									3, {allAmp[note_seq][loca_seq] = dura_seq;},
-									4, {allAmp[note_seq][loca_seq] = dura_seq;},
-									5, {allAmp[note_seq][loca_seq] = dura_seq;},
-									6, {allAmp[note_seq][loca_seq] = dura_seq;},
-									7, {allAmp[note_seq][loca_seq] = dura_seq;},
-									8, {allAmp[note_seq][loca_seq] = dura_seq;},
-									9, {allAmp[note_seq][loca_seq] = dura_seq;},
-									10, {allAmp[note_seq][loca_seq] = dura_seq;},
-									11, {allAmp[note_seq][loca_seq] = dura_seq;},
-									{});
+								var note_seq =  noteSequence[i][0][0];
+								var loca_seq =  noteSequence[i][0][1];
+								var dura_seq = noteSequence[i][0][2];
+								if (note_seq == 0, {allAmp[note_seq][loca_seq] = dura_seq;});
+								if (note_seq == 1, {allAmp[note_seq][loca_seq] = dura_seq;});
+								if (note_seq == 2, {allAmp[note_seq][loca_seq] = dura_seq;});
+								if (note_seq == 3, {allAmp[note_seq][loca_seq] = dura_seq;});
+								if (note_seq == 4, {allAmp[note_seq][loca_seq] = dura_seq;});
+								if (note_seq == 5, {allAmp[note_seq][loca_seq] = dura_seq;});
+								if (note_seq == 6, {allAmp[note_seq][loca_seq] = dura_seq;});
+								if (note_seq == 7, {allAmp[note_seq][loca_seq] = dura_seq;});
+								if (note_seq == 8, {allAmp[note_seq][loca_seq] = dura_seq;});
+								if (note_seq == 9, {allAmp[note_seq][loca_seq] = dura_seq;});
+								if (note_seq == 10, {allAmp[note_seq][loca_seq] = dura_seq;});
+								if (note_seq == 11, {allAmp[note_seq][loca_seq] = dura_seq;});
 								});
 							});
 
@@ -1036,7 +1032,7 @@ knobCut1= EZKnob.new(vw, Rect(tempW+50, tempH+100, 90, 90), "CutOff").setColors(
 								var currAmp = wholeAmp[i];
 								if(currAmp == 1, {wholeAmp[i] = 1});
 								if(currAmp > 1,{
-									wholeDur[i] = currAmp*durRef;
+									wholeDur[i] = currAmp*0.25;
 									wholeAmp[i] = 1;
 
 									for(i+1,i+currAmp-1,{arg k;
@@ -1048,73 +1044,53 @@ knobCut1= EZKnob.new(vw, Rect(tempW+50, tempH+100, 90, 90), "CutOff").setColors(
 							allDur[i] = wholeDur;
 							allAmp[i] = wholeAmp;
 						});
+						for(0,11,{arg i;
+							allDur[i].postln;
+							allAmp[i].postln;
+						});
 
 						for(0,11,{arg i;
 							~seqPbind[i] = Pbind(\instrument, \dummyEnv,
 							\group ,u,
 							\att, knobA1.value,
-							\sus, knobS1.value,
+							\sus, Pseq(allDur[i],inf),
 							\rel, knobR1.value,
 							\out, ~output_bus_timbre_osc,
 							\dur, Pseq(allDur[i],inf),
 							\amp, Pseq(allAmp[i],inf),
-							\midinote, Pseq([[60+i],[60+i],[60+i],[60+i],[60+i],[60+i],[60+i],[60+i],
-									[60+i],[60+i],[60+i],[60+i],[60+i],[60+i],[60+i],[60+i],
-									[60+i],[60+i],[60+i],[60+i],[60+i],[60+i],[60+i],[60+i],
-								[60+i],[60+i],[60+i],[60+i],[60+i],[60+i],[60+i],[60+i],], inf)
+							\midinote, Pseq([12+i+(12*currentOctave)], inf),
+							\ampSaw, 1,
+							\ampBro, 0,
+							\ampPin, 0,
+							\ampWhi,0,
+							\ampBro,0,
+							\ampPin,0
 						     ).play;
 						});
-						/*for(0,11,{arg i;
-							~seqPbind[i] = Pbind(\instrument, \dummyEnv,
+
+						for(0,11,{arg i;
+							~seqPbind2[i] = Pbind(\instrument, \dummyEnv,
 							\group ,u,
 							\att, knobA1.value,
-							\sus, knobS1.value,
+							\sus, Pseq(allDur[i],inf),
 							\rel, knobR1.value,
-							\out, ~output_bus_timbre_osc,
-							\dur, Pseq([ [allDur[i][0]],[allDur[i][1]],[allDur[i][2]],[allDur[i][3]],[allDur[i][4]],[allDur[i][5]],[allDur[i][6]],[allDur[i][7]],
-									[allDur[i][8]],[allDur[i][9]],[allDur[i][10]],[allDur[i][11]],[allDur[i][12]],[allDur[i][13]],[allDur[i][14]],[allDur[i][15]],
-									[allDur[i][16]],[allDur[i][17]],[allDur[i][18]],[allDur[i][19]],[allDur[i][20]],[allDur[i][21]],[allDur[i][22]],[allDur[i][23]],
-									[allDur[i][24]],[allDur[i][25]],[allDur[i][26]],[allDur[i][27]],[allDur[i][28]],[allDur[i][29]],[allDur[i][30]],[allDur[i][31]]],inf),
-						    \amp, Pseq([ [allAmp[i][0]],[allAmp[i][1]],[allAmp[i][2]],[allAmp[i][3]],[allAmp[i][4]],[allAmp[i][5]],[allAmp[i][6]],[allAmp[i][7]],
-									[allAmp[i][8]],[allAmp[i][9]],[allAmp[i][10]],[allAmp[i][11]],[allAmp[i][12]],[allAmp[i][13]],[allAmp[i][14]],[allAmp[i][15]],
-									[allAmp[i][16]],[allAmp[i][17]],[allAmp[i][18]],[allAmp[i][19]],[allAmp[i][20]],[allAmp[i][21]],[allAmp[i][22]],[allAmp[i][23]],
-									[allAmp[i][24]],[allAmp[i][25]],[allAmp[i][26]],[allAmp[i][27]],[allAmp[i][28]],[allAmp[i][29]],[allAmp[i][30]],[allAmp[i][31]]],inf),
-							\midinote, Pseq([ [60+i],[60+i],[60+i],[60+i],[60+i],[60+i],[60+i],[60+i],
-									[60+i],[60+i],[60+i],[60+i],[60+i],[60+i],[60+i],[60+i],
-									[60+i],[60+i],[60+i],[60+i],[60+i],[60+i],[60+i],[60+i],
-									[60+i],[60+i],[60+i],[60+i],[60+i],[60+i],[60+i],[60+i]], inf)
+							\out, ~output_bus_timbre_noise,
+							\dur, Pseq(allDur[i],inf),
+							\amp, Pseq(allAmp[i],inf),
+							\ampSaw, 0,
+							\ampBro, 0,
+							\ampPin, 0,
+							\ampWhi,1,
+							\ampBro,0,
+							\ampPin,0
 						     ).play;
-						});*/
-						/*
-						noteSequence = notesToSeq.value;
-						for(0,31,{arg i;
-							if(noteSequence[i][0] != nil,{
-							var note_seq =  noteSequence[i][0][0];
-							var loca_seq =  noteSequence[i][0][1];
-							var dura_seq = noteSequence[i][0][2];
-							if(note_seq==0,{ampC[loca_seq] = dura_seq;});
-							});
 						});
-
-						for(0,31,{arg i;
-							var currAmp = ampC[i];
-							if(currAmp == 1, {ampC[i] = 1});
-							if(currAmp > 1,{
-								durC[i] = currAmp;
-								ampC[i] = 1;
-
-								for(i+1,i+currAmp-1,{arg k;
-									durC[k] = 0;
-								});
-								i = i + currAmp;
-							});
-						});
-						*/
 
 					}),
 					MenuAction("").icon_(iconStopSEQ).action_({
 						for(0,11,{arg i;
 							~seqPbind[i].stop;
+							~seqPbind2[i].stop;
 						});
 
 					})
@@ -1621,7 +1597,12 @@ tempH = (vw.bounds.height/5 + 50);
 ~freqScope = FreqScopeView(vw, Rect(640,10,430, 70));
 ~freqScope.active_(true);
 ~freqScope.dbRange(200);
-vw.onClose_({ ~freqScope.kill; s.quit; });
+vw.onClose_({ ~freqScope.kill;
+	for(0,11,{arg i;
+							~seqPbind[i].stop;
+							~seqPbind2[i].stop;
+						});
+	s.quit; });
 
 fxView = UserView(vw,Rect(tempW,tempH,vw.bounds.width/2, 450));
 ivFX = View.new(fxView, logoVerb.bounds);
