@@ -16,11 +16,6 @@ More detailed informations can be found in the report we included in the **_Repo
 # Requirements
 * [SC3plugins](https://supercollider.github.io/sc3-plugins/) for the Decimator and the CrossoverDistortion UGens. **This project won't run without a correct installation of SC3plugins!**
 
-# Notes
-The GUI is organised in tabs and contains some elements that have not been implemented. We made this choice because, even though we had to cut these elements due to time constraints, we're still pretty proud of our work and give a glimpse of what future improvements on this code could focus on. 
-
-The main elements that have been cut are a sequencer (still in the GUI, even the note event to array function is ready but not connected to the sound through a function) and a graphical equalizer with its own waveform display (still in the code).
-
 # Known issues
 * (VERY RARE) The GUI (and the synth) randomly crash during execution, bringing the entire interpreter down with them. We have not been able to find a solution to this crash, also due to the objective difficulty in reproducing it
 * Some limit cases have not been accounted for when calling _free_ on certain variables
