@@ -3,8 +3,6 @@
 //----------------------
 //Authors: Francesco Colotti, Gioele Fortugno, Matteo Gionfriddo, Marco Granaiola, Emanuele Greco
 //----------------------
-// GUI file
-// - Pul vs Tri variables
 
 //TODO: choice between noise and osc
 //NEW GUI
